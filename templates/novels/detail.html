@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ novel.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            {% if novel.cover_image %}
+                <img src="{{ novel.cover_image.url }}" class="img-fluid rounded mb-3" alt="Ảnh bìa truyện">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="width: 100%; height: 320px;">
+                    <span class="text-muted">Ảnh minh họa mặc định</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <div class="novel-info">
+                <h1>{{ novel.title }}</h1>
+                <div class="meta">
+                    <p>Người đăng: {{ novel.author.username }}</p>
+                    {% if novel.author_name %}
+                        <p>Tác giả: {{ novel.author_name }}</p>
+                    {% endif %}
+                    <p><strong>Thể loại:</strong> {{ novel.category.name }}</p>
+                    <p><strong>Trạng thái:</strong> {{ novel.status }}</p>
+                    <p><strong>Lượt xem:</strong> {{ novel.views }}</p>
+                    <p><strong>Đánh giá trung bình:</strong>
+                        {% if novel.ratings.count %}
+                            {{ avg_rating|floatformat:1 }} / 5 ({{ novel.ratings.count }} lượt)
+                        {% else %}
+                            Chưa có đánh giá
+                        {% endif %}
+                    </p>
+                    {% if user.is_authenticated %}
+                        {% if user == novel.author or user.is_staff %}
+                            <a href="{% url 'novels:edit_novel' novel.slug %}" class="btn btn-warning mb-2"><i class="bi bi-pencil"></i> Chỉnh sửa</a>
+                            <a href="{% url 'novels:create_chapter' novel.slug %}" class="btn btn-primary mb-2 ms-2"><i class="bi bi-plus-circle"></i> Đăng chương mới</a>
+                            <a href="{% url 'novels:delete_novel' novel.slug %}" class="btn btn-danger mb-2 ms-2" onclick="return confirm('Bạn có chắc chắn muốn xóa truyện này không?');"><i class="bi bi-trash"></i> Xóa truyện</a>
+                        {% endif %}
+                        <a href="{% url 'novels:rate_novel' novel.slug %}" class="btn btn-outline-warning">Đánh giá truyện</a>
+                        {% if is_following %}
+                            <a href="{% url 'novels:toggle_follow' novel.slug %}" class="btn btn-outline-danger">Bỏ theo dõi</a>
+                        {% else %}
+                            <a href="{% url 'novels:toggle_follow' novel.slug %}" class="btn btn-outline-primary">Theo dõi</a>
+                        {% endif %}
+                    {% endif %}
+                    <h4 class="mt-4">Mô tả</h4>
+                    <p>{{ novel.description }}</p>
+                    {% if user.is_authenticated %}
+                        {% if novel in user.favorite_novels.all %}
+                            <a href="{% url 'novels:toggle_favorite' novel.slug %}" class="btn btn-outline-danger">Bỏ yêu thích</a>
+                        {% else %}
+                            <a href="{% url 'novels:toggle_favorite' novel.slug %}" class="btn btn-outline-primary">Yêu thích</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3>Danh sách chương</h3>
+            {% if chapters %}
+                <ul class="list-group">
+                    {% for chapter in chapters %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'novels:chapter_detail' novel.slug chapter.chapter_number %}">
+                                Chương {{ chapter.chapter_number }}: {{ chapter.title }}
+                            </a>
+                            <span class="text-muted">{{ chapter.created_at|date:"d/m/Y H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-info mt-3">Chưa có chương nào.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Bình luận truyện ({{ novel.comments.count }})</h5>
+        </div>
+        <div class="card-body">
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'novels:add_novel_comment' novel.slug %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea name="content" class="form-control" rows="3" placeholder="Viết bình luận..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Đăng bình luận</button>
+                </form>
+            {% else %}
+                <p class="text-center">Vui lòng <a href="{% url 'accounts:login' %}">đăng nhập</a> để bình luận.</p>
+            {% endif %}
+
+            <hr>
+
+            <div class="comments-list">
+                {% for comment in novel.comments.all %}
+                    <div class="comment mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ comment.user.username }}</strong>
+                                <small class="text-muted ms-2">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            {% if user == comment.user or user.is_staff %}
+                                <a href="{% url 'novels:delete_novel_comment' comment.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa bình luận này không?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                        <p class="mb-0 mt-2">{{ comment.content }}</p>
+                    </div>
+                    {% if not forloop.last %}
+                        <hr>
+                    {% endif %}
+                {% empty %}
+                    <p class="text-center text-muted">Chưa có bình luận nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

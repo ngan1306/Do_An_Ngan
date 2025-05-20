@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ title }}</h1>
+    
+    {% if novels %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for novel in novels %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if novel.cover_image %}
+                            <img src="{{ novel.cover_image.url }}" class="card-img-top" alt="{{ novel.title }}" style="height: 300px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                                <i class="bi bi-book text-muted" style="font-size: 5rem;"></i>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ novel.title }}</h5>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Tác giả: {{ novel.author.username }}<br>
+                                    Thể loại: {{ novel.category.name }}<br>
+                                    Trạng thái: {{ novel.get_status_display }}<br>
+                                    Lượt xem: {{ novel.views }}
+                                </small>
+                            </p>
+                            <p class="card-text">{{ novel.description|truncatewords:30 }}</p>
+                            <a href="{% url 'novels:novel_detail' novel.slug %}" class="btn btn-primary">Đọc truyện</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Bạn chưa có truyện yêu thích nào.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

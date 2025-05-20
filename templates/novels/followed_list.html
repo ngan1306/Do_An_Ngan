@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Truyện đang theo dõi{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Truyện đang theo dõi</h2>
+    {% if novels %}
+        <ul class="list-group">
+            {% for novel in novels %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'novels:novel_detail' novel.slug %}">{{ novel.title }}</a>
+                    <span class="text-muted">{{ novel.author.username }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info mt-3">Bạn chưa theo dõi truyện nào.</div>
+    {% endif %}
+</div>
+{% endblock %} 

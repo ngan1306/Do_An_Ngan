@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Thông tin cá nhân{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Thông tin cá nhân</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên đăng nhập</label>
+                            <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="{{ user.email }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Họ</label>
+                            <input type="text" class="form-control" id="first_name" value="{{ user.first_name|default:'Chưa cập nhật' }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Tên</label>
+                            <input type="text" class="form-control" id="last_name" value="{{ user.last_name|default:'Chưa cập nhật' }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Giới thiệu</label>
+                            <textarea class="form-control" id="bio" rows="3" disabled>{{ user.bio|default:'Chưa cập nhật' }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="birth_date" class="form-label">Ngày sinh</label>
+                            <input type="date" class="form-control" id="birth_date" value="{{ user.birth_date|date:'Y-m-d'|default:'' }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gender" class="form-label">Giới tính</label>
+                            <input type="text" class="form-control" id="gender" value="{{ user.get_gender_display|default:'Chưa cập nhật' }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" id="location" value="{{ user.location|default:'Chưa cập nhật' }}" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label for="website" class="form-label">Website</label>
+                            <input type="url" class="form-control" id="website" value="{{ user.website|default:'Chưa cập nhật' }}" disabled>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary">Chỉnh sửa thông tin</a>
+                            <a href="{% url 'accounts:password_change' %}" class="btn btn-outline-primary">Đổi mật khẩu</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if user.is_author %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h4 class="card-title">Truyện đã đăng</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tên truyện</th>
+                                    <th>Thể loại</th>
+                                    <th>Trạng thái</th>
+                                    <th>Lượt xem</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for novel in user.novels.all %}
+                                <tr>
+                                    <td>{{ novel.title }}</td>
+                                    <td>{{ novel.category.name }}</td>
+                                    <td>{{ novel.get_status_display }}</td>
+                                    <td>{{ novel.views }}</td>
+                                    <td>
+                                        <a href="{% url 'novels:novel_edit' novel.pk %}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Bạn chưa đăng truyện nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

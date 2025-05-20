@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Danh sách truyện{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h5>Thể loại</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <a href="{% url 'novel_list' %}" class="text-decoration-none {% if not current_category %}text-primary{% endif %}">
+                            Tất cả
+                        </a>
+                    </li>
+                    {% for category in categories %}
+                        <li class="list-group-item">
+                            <a href="{% url 'novel_list_by_category' category.slug %}" 
+                               class="text-decoration-none {% if current_category == category.slug %}text-primary{% endif %}">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            {% for novel in novels %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ novel.cover_image.url }}" class="card-img-top" alt="{{ novel.title }}" style="height: 300px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ novel.title }}</h5>
+                            <p class="card-text text-muted">Tác giả: {{ novel.author.username }}</p>
+                            <p class="card-text">{{ novel.description|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ novel.status }}</span>
+                                <span class="text-muted">
+                                    <i class="bi bi-eye"></i> {{ novel.views }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'novel_detail' novel.slug %}" class="btn btn-primary w-100">Đọc truyện</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        Không tìm thấy truyện nào.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,9 @@
+<div class="form-group mb-3">
+    <label for="{{ form.author_text.id_for_label }}">Tên tác giả:</label>
+    {{ form.author_text }}
+    {% if form.author_text.errors %}
+        <div class="alert alert-danger">
+            {{ form.author_text.errors }}
+        </div>
+    {% endif %}
+</div>
